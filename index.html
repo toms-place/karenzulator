@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro-Planer: Österreich Karenz, eaKBG &amp; Haushaltsbudget</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Pro-Planer: eaKBG, Wechsel &amp; 2-Jahres-Budget (Österreich)</h1>
+    <p>
+      Tagesgenaue Simulation auf Basis von <b>§§ 24, 24a, 24b KBGG</b> für die volle Periode <b>2 Jahre ab Geburt</b>.
+      Höchstbetrag, Wochengeld-Faktor, 61-Tage-Regel, max. 2 Wechsel sowie der Partnerschaftsbonus
+      werden gesetzeskonform berücksichtigt.
+    </p>
+
+    <div class="grid">
+      <!-- ============== SIDEBAR / CONTROLS ============== -->
+      <div class="controls">
+        <h3>1. Basis &amp; 1. Wechsel</h3>
+        <div class="form-group">
+          <label for="kbgVariant">KBG-Variante:</label>
+          <select id="kbgVariant">
+            <option value="ea" selected>Einkommensabhängiges KBG (eaKBG, max. 426 T)</option>
+            <option value="pauschal">Pauschales KBG (KBG-Konto, max. 1 063 T)</option>
+          </select>
+          <span class="field-desc">
+            <b>Wichtig:</b> Beide Eltern müssen dieselbe Variante wählen (§ 26a KBGG).
+            Pauschal zahlt weniger pro Tag, dafür länger – sinnvoll bei langer Karenz.
+          </span>
+        </div>
+        <div class="form-group" id="pauschalDaysWrap" style="display:none;">
+          <label for="pauschalDays">Pauschal: gewählte Anspruchsdauer (Tage gesamt):</label>
+          <input type="number" id="pauschalDays" value="730" min="456" max="1063" step="1">
+          <span class="field-desc">Bei Aufteilung: 456–1 063 Tage. Längere Dauer = niedrigerer Tagsatz.</span>
+        </div>
+        <div class="form-group">
+          <label for="birthDate">Geburtsdatum des Kindes:</label>
+          <input type="date" id="birthDate" value="2026-09-01">
+        </div>
+        <div class="form-group">
+          <label for="switchDate">1. Wechsel (Bezug → Vater):</label>
+          <input type="date" id="switchDate" value="2027-06-01">
+          <span class="field-desc">Tag, an dem der KBG-Bezug an den Vater übergeht.</span>
+        </div>
+
+        <div class="form-group nested">
+          <label class="check-label">
+            <input type="checkbox" id="useOverlap" checked> <b>Gemeinsamer KBG-Bezug beim 1. Wechsel?</b>
+          </label>
+          <span class="field-desc">§ 24b Abs. 3 KBGG: bis zu 31 Tage gleichzeitig möglich – verkürzt die
+            Anspruchsdauer.</span>
+          <div id="overlapControls" style="margin-top:12px;">
+            <div class="form-group">
+              <label for="overlapDays">Tage Überschneidung (1–31):</label>
+              <input type="number" id="overlapDays" value="14" min="1" max="31">
+            </div>
+            <div class="form-group">
+              <label for="overlapFinancing">Finanzierung in der Überschneidung:</label>
+              <select id="overlapFinancing">
+                <option value="beide">Beide beziehen KBG (kürzt Anspruchsdauer)</option>
+                <option value="mutter">Nur Mutter bezieht KBG (Vater unbezahlte Karenz)</option>
+                <option value="vater" selected>Nur Vater bezieht KBG (Mutter unbezahlte Karenz)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="check-label">
+            <input type="checkbox" id="useSwitch2"> 2. Wechsel (Bezug zurück an Mutter)
+          </label>
+          <input type="date" id="switchDate2" value="2027-08-01" style="display:none; margin-top:8px;">
+        </div>
+
+        <hr>
+
+        <h3>2. Monatliches Nettoeinkommen</h3>
+        <div class="form-group">
+          <label for="incomeMutter">Netto Mutter (12×/Jahr):</label>
+          <div class="input-group">
+            <input type="number" id="incomeMutter" value="2850" step="100">
+            <span class="input-group-append">€</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="incomeVater">Netto Vater (12×/Jahr):</label>
+          <div class="input-group">
+            <input type="number" id="incomeVater" value="2850" step="100">
+            <span class="input-group-append">€</span>
+          </div>
+        </div>
+
+        <hr>
+
+        <h3>3. Zuverdienst während Karenz</h3>
+        <div class="form-group">
+          <label for="gfMutter">Geringfügigkeit Mutter (€/Monat):</label>
+          <div class="input-group">
+            <input type="number" id="gfMutter" value="0" step="10">
+            <span class="input-group-append">€</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="gfVater">Geringfügigkeit Vater (€/Monat):</label>
+          <div class="input-group">
+            <input type="number" id="gfVater" value="0" step="10">
+            <span class="input-group-append">€</span>
+          </div>
+        </div>
+        <span class="field-desc">
+          Absolute Zuverdienstgrenze für eaKBG: <b>8 600 € / Kalenderjahr</b> (§ 24 Abs. 1 Z 3 KBGG).
+          Die App warnt, wenn überschritten.
+        </span>
+
+        <hr>
+
+        <h3>4. Unbezahlte Karenz (im Anschluss)</h3>
+        <p class="field-desc" style="margin-top:-4px;">
+          <b>Achtung:</b> Das eaKBG ist auf <b>426 Tage ab Geburt</b> gedeckelt
+          (§ 24b Abs. 2 KBGG). Bleibt ein Elternteil danach in Karenz,
+          ist das gesetzlich <i>unbezahlte</i> Karenz – es fließt <b>kein KBG</b>
+          mehr (außer durch Wechsel zur pauschalen KBG-Konto-Variante,
+          die in diesem Tool nicht modelliert wird).
+        </p>
+        <div class="form-group">
+          <label for="extendedWho">Wer bleibt nach Ende des KBG zuhause?</label>
+          <select id="extendedWho">
+            <option value="Mutter">Mutter</option>
+            <option value="Vater">Vater</option>
+            <option value="Niemand" selected>Niemand (beide arbeiten)</option>
+          </select>
+        </div>
+        <div id="extendedControls" style="display:none;">
+          <div class="form-group">
+            <label for="extendedEndDate">Enddatum dieses Karenz-Blocks:</label>
+            <input type="date" id="extendedEndDate" value="2028-07-01">
+          </div>
+          <div class="form-group">
+            <label class="check-label">
+              <input type="checkbox" id="useExtSwitch"> Wechsel auch in der unbezahlten Karenz
+            </label>
+          </div>
+          <div id="extSwitchControls" style="display:none;">
+            <div class="form-group">
+              <label for="extendedWho2">Zweiter Elternteil (unbezahlt):</label>
+              <select id="extendedWho2">
+                <option value="Mutter">Mutter</option>
+                <option value="Vater">Vater</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="extendedEndDate2">Enddatum 2. Karenzblock:</label>
+              <input type="date" id="extendedEndDate2" value="2028-09-01">
+            </div>
+          </div>
+        </div>
+
+        <hr>
+
+        <h3>5. Eltern-Kind-Pass</h3>
+        <div class="form-group">
+          <label class="check-label">
+            <input type="checkbox" id="ekpDone" checked> Alle Eltern-Kind-Pass-Untersuchungen erledigt
+          </label>
+          <span class="field-desc">Sonst: −1 300 € pro Elternteil (§ 24a Abs. 4 KBGG).</span>
+        </div>
+
+        <hr>
+
+        <h3>6. Optimieren</h3>
+        <div class="form-group">
+          <label for="optGoal">Optimierungsziel:</label>
+          <select id="optGoal">
+            <option value="household" selected>Maximales Haushaltsbudget (2 Jahre)</option>
+            <option value="state">Maximaler Staatsbeitrag (eaKBG + Bonus)</option>
+            <option value="bonus">Mit Partnerschaftsbonus &amp; max. Haushalt</option>
+          </select>
+        </div>
+        <button id="optimizeBtn" class="btn-primary">⚡ Bestmögliche Aufteilung berechnen</button>
+        <div id="optimizerResult" class="optimizer-result"></div>
+      </div>
+
+      <!-- ============== MAIN / DASHBOARD ============== -->
+      <div>
+        <div class="alert-box" id="blockAlertBox">
+          <strong>Gesetzlicher Fehler:</strong> Mindestens ein KBG-Block ist kürzer als die gesetzlich
+          vorgeschriebenen <b>61 Tage</b> (§ 24b Abs. 4 KBGG).
+        </div>
+        <div class="alert-box" id="switchAlertBox">
+          <strong>Gesetzlicher Fehler:</strong> Aktuell <span id="switchCount">0</span> Wechsel —
+          es sind nur <b>maximal 2 Wechsel</b> erlaubt (§ 24b Abs. 2 KBGG).
+          Reduziere die Wechsel oder prüfe, ob die Wechseldaten in chronologischer Reihenfolge stehen.
+        </div>
+        <div class="alert-box" id="zuverdienstAlertBox">
+          <strong>Zuverdienst-Warnung:</strong> Der Zuverdienst eines Elternteils überschreitet die
+          Grenze von <b>8 600 €/Jahr</b> während des eaKBG-Bezugs.
+        </div>
+
+        <div class="dashboard-section">
+          <div class="dashboard" style="grid-template-columns: 1fr 1fr; margin-bottom:15px;">
+            <div class="card total">
+              <h4>Gesamt-Staatsbeitrag (Wochengeld + eaKBG + Bonus)</h4>
+              <div class="value" id="grandTotalHtml">—</div>
+              <div class="subtext">Über die volle 2-Jahres-Periode</div>
+            </div>
+            <div class="card household">
+              <h4>Haushaltsbudget gesamt (2 Jahre)</h4>
+              <div class="value" id="householdTotalHtml">—</div>
+              <div class="subtext">Staatsbeitrag + Erwerbseinkommen beider</div>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom:5px;">Tage &amp; Partnerschaftsbonus (KBG-Phase)</h3>
+          <div class="dashboard">
+            <div class="card">
+              <h4>KBG-Tage Mutter</h4>
+              <div class="value" id="mutterDaysHtml">—</div>
+            </div>
+            <div class="card">
+              <h4>KBG-Tage Vater</h4>
+              <div class="value" id="vaterDaysHtml">—</div>
+            </div>
+            <div class="card" id="ratioCard">
+              <h4>Verhältnis (M : V)</h4>
+              <div class="value" id="ratioHtml">—</div>
+              <div class="subtext">Bonus: 40:60 bis 60:40 erforderlich</div>
+            </div>
+            <div class="card" id="switchesCard">
+              <h4>Wechsel zwischen Eltern</h4>
+              <div class="value" id="switchesHtml">—</div>
+              <div class="subtext">max. 2 erlaubt (§ 24b Abs. 2 KBGG)</div>
+            </div>
+            <div class="card" id="bonusCard">
+              <h4>Partnerschaftsbonus (1 000 €)</h4>
+              <div class="value" id="bonusHtml">—</div>
+            </div>
+          </div>
+
+          <div class="card calc-detail">
+            <h4>Berechnungsweg (gesetzliche Deckelungen)</h4>
+            <div id="calcDetailsText"></div>
+          </div>
+        </div>
+
+        <h3>Monatlicher Einkommensverlauf</h3>
+        <div class="chart-card">
+          <div class="chart-container">
+            <canvas id="incomeChart"></canvas>
+          </div>
+        </div>
+
+        <h3 style="margin-top:30px;">Chronologischer Verlauf (2 Jahre)</h3>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color bg-wochengeld"></div>Wochengeld
+          </div>
+          <div class="legend-item">
+            <div class="legend-color bg-mutter-kbg"></div>eaKBG Mutter
+          </div>
+          <div class="legend-item">
+            <div class="legend-color bg-vater-kbg"></div>eaKBG Vater
+          </div>
+          <div class="legend-item">
+            <div class="legend-color bg-mutter-kbg-2"></div>eaKBG Mutter (2. Phase)
+          </div>
+          <div class="legend-item">
+            <div class="legend-color bg-ext-m"></div>Karenz Mutter (unbezahlt)
+          </div>
+          <div class="legend-item">
+            <div class="legend-color bg-ext-v"></div>Karenz Vater (unbezahlt)
+          </div>
+          <div class="legend-item">
+            <div class="legend-color bg-arbeiten"></div>Arbeiten
+          </div>
+        </div>
+
+        <div class="timeline-wrapper">
+          <div class="timeline-bar" id="timelineBar"></div>
+          <div id="textTimeline" style="font-size:13px;"></div>
+        </div>
+
+        <h3>Exakte Monatsaufschlüsselung</h3>
+        <div class="calendar-view" id="calendarView"></div>
+      </div>
+    </div>
+
+    <footer class="legal-footer">
+      Rechtsstand: KBGG idF 2026, Höchstbetrag eaKBG 80,12 €/Tag (§ 24a Abs. 2/2a, ASVG-Anpassungsfaktor).
+      Diese Anwendung ist eine Schätzung &amp; ersetzt keine Beratung der ÖGK / AK.
+    </footer>
+  </div>
+
+  <script src="js/helpers.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/optimizer.js"></script>
+</body>
+
+</html>
