@@ -123,3 +123,10 @@ function calcPauschalDaily(totalDays, isSplit = true) {
     : KBG_LAW.PAUSCHAL_TOTAL_BUDGET_SINGLE;
   return budget / totalDays;
 }
+
+/**
+ * Kurzlabel für die gewählte KBG-Variante (UI-Anzeige).
+ */
+function kbgLabel(variant) {
+  return variant === "pauschal" ? "pKBG" : "eaKBG";
+}

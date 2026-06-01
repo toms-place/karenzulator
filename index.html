@@ -12,7 +12,7 @@
 <body>
 
   <div class="container">
-    <h1>Pro-Planer: eaKBG, Wechsel &amp; 2-Jahres-Budget (Österreich)</h1>
+    <h1>Pro-Planer: <span data-kbg-label>eaKBG</span>, Wechsel &amp; 2-Jahres-Budget (Österreich)</h1>
     <p>
       Tagesgenaue Simulation auf Basis von <b>§§ 24, 24a, 24b KBGG</b> für die volle Periode <b>2 Jahre ab Geburt</b>.
       Höchstbetrag, Wochengeld-Faktor, 61-Tage-Regel, max. 2 Wechsel sowie der Partnerschaftsbonus
@@ -178,7 +178,7 @@
           <label for="optGoal">Optimierungsziel:</label>
           <select id="optGoal">
             <option value="household" selected>Maximales Haushaltsbudget (2 Jahre)</option>
-            <option value="state">Maximaler Staatsbeitrag (eaKBG + Bonus)</option>
+            <option value="state">Maximaler Staatsbeitrag (<span data-kbg-label>eaKBG</span> + Bonus)</option>
             <option value="bonus">Mit Partnerschaftsbonus &amp; max. Haushalt</option>
           </select>
         </div>
@@ -205,7 +205,7 @@
         <div class="dashboard-section">
           <div class="dashboard" style="grid-template-columns: 1fr 1fr; margin-bottom:15px;">
             <div class="card total">
-              <h4>Gesamt-Staatsbeitrag (Wochengeld + eaKBG + Bonus)</h4>
+              <h4>Gesamt-Staatsbeitrag (Wochengeld + <span data-kbg-label>eaKBG</span> + Bonus)</h4>
               <div class="value" id="grandTotalHtml">—</div>
               <div class="subtext">Über die volle 2-Jahres-Periode</div>
             </div>
@@ -221,8 +221,6 @@
             <div class="card">
               <h4>KBG-Tage Mutter</h4>
               <div class="value" id="mutterDaysHtml">—</div>
-            </div>
-            <div class="card">
               <h4>KBG-Tage Vater</h4>
               <div class="value" id="vaterDaysHtml">—</div>
             </div>
@@ -261,13 +259,13 @@
             <div class="legend-color bg-wochengeld"></div>Wochengeld
           </div>
           <div class="legend-item">
-            <div class="legend-color bg-mutter-kbg"></div>eaKBG Mutter
+            <div class="legend-color bg-mutter-kbg"></div><span data-kbg-label>eaKBG</span>&nbsp;Mutter
           </div>
           <div class="legend-item">
-            <div class="legend-color bg-vater-kbg"></div>eaKBG Vater
+            <div class="legend-color bg-vater-kbg"></div><span data-kbg-label>eaKBG</span>&nbsp;Vater
           </div>
           <div class="legend-item">
-            <div class="legend-color bg-mutter-kbg-2"></div>eaKBG Mutter (2. Phase)
+            <div class="legend-color bg-mutter-kbg-2"></div><span data-kbg-label>eaKBG</span>&nbsp;Mutter (2. Phase)
           </div>
           <div class="legend-item">
             <div class="legend-color bg-ext-m"></div>Karenz Mutter (unbezahlt)

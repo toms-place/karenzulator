@@ -288,3 +288,53 @@ hr { border: 0; border-top: 1px solid #dee2e6; margin: 20px 0; }
     color: #6c757d;
     text-align: center;
 }
+
+/* ============ Responsive / Mobile ============ */
+@media (max-width: 768px) {
+    body { padding: 8px; }
+    .container { padding: 16px; border-radius: 8px; }
+    h1 { font-size: 22px; line-height: 1.3; }
+    h2 { font-size: 18px; }
+    h3 { font-size: 16px; }
+
+    .grid { gap: 16px; }
+
+    .controls { padding: 14px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group.nested { padding: 10px; }
+
+    .dashboard {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+    }
+    .card { padding: 12px; }
+    .card .value { font-size: 16px; }
+    .card h4 { font-size: 10px; }
+
+    .calendar-view {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .timeline-wrapper { padding: 12px; }
+    .timeline-bar { height: 28px; }
+    .timeline-segment { font-size: 10px; }
+
+    .legend { gap: 8px; }
+    .legend-item { font-size: 11px; }
+
+    .chart-container { height: 240px; }
+    .chart-card { padding: 10px; }
+
+    .alert-box { font-size: 12px; padding: 10px 12px; }
+
+    input[type="date"], input[type="number"], select {
+        font-size: 16px; /* iOS: kein Auto-Zoom bei Focus */
+    }
+}
+
+@media (max-width: 420px) {
+    .dashboard { grid-template-columns: 1fr; }
+    h1 { font-size: 19px; }
+    .container { padding: 12px; }
+}

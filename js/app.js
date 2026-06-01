@@ -57,6 +57,7 @@ function buildBlocks(p) {
   const blocks = [];
   const wgStart = new Date(p.birthDate);
   const wgEnd = addDays(wgStart, KBG_LAW.WOCHENGELD_DAYS - 1);
+  const lbl = kbgLabel(p.variant);
 
   // Beim 1. Wechsel mit "beide" wird die Anspruchsdauer um overlapDays gekürzt
   const reducedDays =
@@ -89,7 +90,7 @@ function buildBlocks(p) {
     who: "Mutter",
     start: b1Start,
     end: m1End,
-    label: "eaKBG Mutter",
+    label: lbl + " Mutter",
     class: "bg-mutter-kbg",
   });
 
@@ -118,7 +119,7 @@ function buildBlocks(p) {
       who: "Vater",
       start: b2Start,
       end: b2End,
-      label: "eaKBG Vater",
+      label: lbl + " Vater",
       class: "bg-vater-kbg",
     });
   }
@@ -133,7 +134,7 @@ function buildBlocks(p) {
         who: "Mutter",
         start: b3Start,
         end: b3End,
-        label: "eaKBG Mutter (2)",
+        label: lbl + " Mutter (2)",
         class: "bg-mutter-kbg-2",
       });
     }
@@ -257,9 +258,10 @@ function simulate(p, blocks) {
           result.vaterKbgDays++;
         }
       } else if (block.type === "overlap") {
+        const lbl = kbgLabel(p.variant);
         if (block.finance === "beide") {
-          activeM = { label: "eaKBG Mutter", class: "bg-mutter-kbg" };
-          activeV = { label: "eaKBG Vater", class: "bg-vater-kbg" };
+          activeM = { label: lbl + " Mutter", class: "bg-mutter-kbg" };
+          activeV = { label: lbl + " Vater", class: "bg-vater-kbg" };
           mMoney = kbgDailyM + gfDailyM;
           vMoney = kbgDailyV + gfDailyV;
           result.totalStateMoney += kbgDailyM + kbgDailyV;
@@ -268,7 +270,7 @@ function simulate(p, blocks) {
           result.mutterKbgDays++;
           result.vaterKbgDays++;
         } else if (block.finance === "mutter") {
-          activeM = { label: "eaKBG Mutter", class: "bg-mutter-kbg" };
+          activeM = { label: lbl + " Mutter", class: "bg-mutter-kbg" };
           activeV = { label: "Karenz Vater (unbezahlt)", class: "bg-ext-v" };
           mMoney = kbgDailyM + gfDailyM;
           // Vater: Geringfügigkeit zählt weiter (kein KBG-Bezug → keine Zuverdienst-Grenze)
@@ -278,7 +280,7 @@ function simulate(p, blocks) {
           result.mutterKbgDays++;
         } else {
           activeM = { label: "Karenz Mutter (unbezahlt)", class: "bg-ext-m" };
-          activeV = { label: "eaKBG Vater", class: "bg-vater-kbg" };
+          activeV = { label: lbl + " Vater", class: "bg-vater-kbg" };
           mMoney = gfDailyM;
           vMoney = kbgDailyV + gfDailyV;
           result.totalStateMoney += kbgDailyV;
@@ -460,6 +462,12 @@ function calculateTimeline() {
         ${!p.ekpDone ? '<br><br><b style="color:var(--danger);">Eltern-Kind-Pass-Strafe: −2 600 € (2 × 1 300 €)</b>' : ""}
       `;
   document.getElementById("calcDetailsText").innerHTML = variantHtml;
+
+  // Variant-Label überall in der UI aktualisieren
+  const labelText = kbgLabel(p.variant);
+  document.querySelectorAll("[data-kbg-label]").forEach((el) => {
+    el.textContent = labelText;
+  });
 
   // Alerts
   document.getElementById("blockAlertBox").style.display =
