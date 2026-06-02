@@ -1,14 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Karenzulator Logo">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img"
+  aria-label="Karenzulator Logo">
   <title>Karenzulator</title>
   <!-- Hintergrund: abgerundetes Quadrat in Primärblau -->
-  <rect width="64" height="64" rx="14" ry="14" fill="#1d3557"/>
+  <rect width="64" height="64" rx="14" ry="14" fill="#1d3557" />
   <!-- Euro-Symbol -->
   <g fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M42 19 a14 14 0 1 0 0 22"/>
-    <line x1="16" y1="27" x2="36" y2="27"/>
-    <line x1="16" y1="33" x2="34" y2="33"/>
+    <path d="M42 19 a14 14 0 1 0 0 22" />
+    <line x1="16" y1="27" x2="36" y2="27" />
+    <line x1="16" y1="33" x2="34" y2="33" />
   </g>
   <!-- Timeline-Streifen unten: Mutter (blau) + Vater (grün) -->
-  <rect x="10" y="48" width="20" height="6" rx="2" fill="#457b9d"/>
-  <rect x="34" y="48" width="20" height="6" rx="2" fill="#2a9d8f"/>
+  <rect x="10" y="48" width="20" height="6" rx="2" fill="#457b9d" />
+  <rect x="34" y="48" width="20" height="6" rx="2" fill="#2a9d8f" />
 </svg>
