@@ -175,7 +175,10 @@ function buildBlocks(p) {
 }
 
 // ----------------------------------------------------------
-// 3) Tagesschleife: 730 Tage simulieren, aggregieren
+// 3) Tagesschleife: dynamischer Simulationszeitraum
+//    eaKBG:    730 Tage (2 Jahre)
+//    Pauschal: pauschalDays (bis zu 1063), aber mind. 730 Tage,
+//              und mindestens bis zum Ende der unbezahlten Karenz.
 // ----------------------------------------------------------
 function simulate(p, blocks) {
   const wgDaily = calcWochengeldDaily(p.incM);
@@ -194,7 +197,17 @@ function simulate(p, blocks) {
   const gfDailyM = p.gfM / 30.4;
   const gfDailyV = p.gfV / 30.4;
 
-  const twoYearsLater = addDays(p.birthDate, 730 - 1);
+  // Sim-Horizont: mindestens 2 Jahre, mindestens KBG-Anspruchsdauer,
+  // und mindestens bis Ende des letzten Blocks (z.B. unbezahlte Karenz).
+  const variantMaxDays =
+    p.variant === "pauschal" ? p.pauschalDays : KBG_LAW.MAX_TOTAL_DAYS;
+  let horizonDays = Math.max(730, variantMaxDays);
+  if (blocks.length) {
+    const lastEnd = blocks[blocks.length - 1].end;
+    const lastDays = dayDiff(p.birthDate, lastEnd) + 1;
+    if (lastDays > horizonDays) horizonDays = lastDays;
+  }
+  const simEnd = addDays(p.birthDate, horizonDays - 1);
 
   const result = {
     wgDaily,
@@ -207,11 +220,12 @@ function simulate(p, blocks) {
     zuverdienstM: {}, // pro Jahr
     zuverdienstV: {},
     monthsData: {},
-    twoYearsLater,
+    simEnd,
+    horizonDays,
   };
 
   let loopDate = normalizeDate(p.birthDate);
-  while (loopDate <= twoYearsLater) {
+  while (loopDate <= simEnd) {
     const k = getYearMonthKey(loopDate);
     if (!result.monthsData[k]) {
       result.monthsData[k] = { statesM: {}, statesV: {}, monM: 0, monV: 0 };
@@ -369,8 +383,8 @@ function evaluateCompliance(p, blocks, sim) {
     validRatio && validDays && !blockRuleViolated && !switchRuleViolated;
 
   // Zuverdienst-Grenze: variantenabhängig
-  // eaKBG:    8 600 €/Jahr (§ 24 Abs. 1 Z 3)
-  // Pauschal: 18 000 €/Jahr (§ 8 Abs. 1)
+  // eaKBG:    € 8.600/Jahr (§ 24 Abs. 1 Z 3)
+  // Pauschal: € 18.000/Jahr (§ 8 Abs. 1)
   const zuverdienstLimit =
     p.variant === "pauschal"
       ? KBG_LAW.PAUSCHAL_ZUVERDIENST_LIMIT
@@ -448,18 +462,18 @@ function calculateTimeline() {
         ${p.pauschalDays} Tage:<br>
         <i>= <span style="color:var(--mutter-kbg-color);font-weight:bold;">${formatEurCents.format(sim.kbgDailyM)} / Tag</span>
         (gilt für beide Eltern, einheitlicher Tagsatz)</i><br>
-        <span class="field-desc">Zuverdienstgrenze pauschal: 18 000 €/Jahr.</span>
-        ${!p.ekpDone ? '<br><br><b style="color:var(--danger);">Eltern-Kind-Pass-Strafe: −2 600 € (2 × 1 300 €)</b>' : ""}
+        <span class="field-desc">Zuverdienstgrenze pauschal: € 18.000/Jahr.</span>
+        ${!p.ekpDone ? '<br><br><b style="color:var(--danger);">Eltern-Kind-Pass-Strafe: −€ 2.600 (2 × € 1.300)</b>' : ""}
       `
       : `
         <b>1. Wochengeld (Mutter):</b> Anrechenbares Netto: ${formatEur.format(Math.min(p.incM, KBG_LAW.MAX_NETTO_SV))}.<br>
         <i>(${formatEur.format(Math.min(p.incM, KBG_LAW.MAX_NETTO_SV))} / 30) × 1,17 =
         <span style="color:var(--danger);font-weight:bold;">${formatEurCents.format(sim.wgDaily)} / Tag</span></i><br><br>
-        <b>2. eaKBG Mutter:</b> 80 % des Wochengelds, gedeckelt auf ${KBG_LAW.EAKBG_MAX_DAILY} €.<br>
+        <b>2. eaKBG Mutter:</b> 80 % des Wochengelds, gedeckelt auf ${formatEurCents.format(KBG_LAW.EAKBG_MAX_DAILY)}.<br>
         <i>= <span style="color:var(--mutter-kbg-color);font-weight:bold;">${formatEurCents.format(sim.kbgDailyM)} / Tag</span></i><br><br>
-        <b>3. eaKBG Vater:</b> 80 % des fiktiven Wochengelds (Frau an seiner Stelle), gedeckelt auf ${KBG_LAW.EAKBG_MAX_DAILY} €.<br>
+        <b>3. eaKBG Vater:</b> 80 % des fiktiven Wochengelds (Frau an seiner Stelle), gedeckelt auf ${formatEurCents.format(KBG_LAW.EAKBG_MAX_DAILY)}.<br>
         <i>= <span style="color:var(--vater-kbg-color);font-weight:bold;">${formatEurCents.format(sim.kbgDailyV)} / Tag</span></i>
-        ${!p.ekpDone ? '<br><br><b style="color:var(--danger);">Eltern-Kind-Pass-Strafe: −2 600 € (2 × 1 300 €)</b>' : ""}
+        ${!p.ekpDone ? '<br><br><b style="color:var(--danger);">Eltern-Kind-Pass-Strafe: −€ 2.600 (2 × € 1.300)</b>' : ""}
       `;
   document.getElementById("calcDetailsText").innerHTML = variantHtml;
 
@@ -500,21 +514,21 @@ function calculateTimeline() {
   const bonusCard = document.getElementById("bonusCard");
   const ratioCard = document.getElementById("ratioCard");
   if (comp.bonusEligible) {
-    document.getElementById("bonusHtml").innerText = "JA (1 000 €)";
+    document.getElementById("bonusHtml").innerText = "JA (€ 1.000)";
     bonusCard.className = "card success";
     ratioCard.className = "card success";
   } else {
-    document.getElementById("bonusHtml").innerText = "NEIN (0 €)";
+    document.getElementById("bonusHtml").innerText = "NEIN (€ 0)";
     bonusCard.className = "card danger";
     ratioCard.className = "card danger";
   }
 
-  renderTimeline(blocks, r.maxKbgEnd, sim.twoYearsLater);
+  renderTimeline(blocks, r.maxKbgEnd, sim.simEnd, sim.horizonDays);
   renderCalendar(sim.monthsData);
   renderChart(sim.monthsData);
 }
 
-function renderTimeline(blocks, maxKbgEnd, twoYearsLater) {
+function renderTimeline(blocks, maxKbgEnd, simEnd, horizonDays) {
   const tBar = document.getElementById("timelineBar");
   tBar.innerHTML = "";
   let html = "";
@@ -535,7 +549,7 @@ function renderTimeline(blocks, maxKbgEnd, twoYearsLater) {
         visualClass = "bg-vater-kbg";
       }
     }
-    const widthPct = (days / 730) * 100;
+    const widthPct = (days / horizonDays) * 100;
     const div = document.createElement("div");
     div.className = `timeline-segment ${visualClass}`;
     div.style.width = `${widthPct}%`;
@@ -545,9 +559,9 @@ function renderTimeline(blocks, maxKbgEnd, twoYearsLater) {
     html += `<p style="margin:4px 0;">• <b>${formatDateStr(b.start)} – ${formatDateStr(b.end)}</b>: ${textLabel} (${days} Tage)</p>`;
   });
   const lastEnd = blocks.length ? blocks[blocks.length - 1].end : null;
-  if (lastEnd && lastEnd < twoYearsLater) {
-    const days = dayDiff(lastEnd, twoYearsLater);
-    html += `<p style="margin:4px 0;color:#6c757d;">• <b>${formatDateStr(addDays(lastEnd, 1))} – ${formatDateStr(twoYearsLater)}</b>: Beide arbeiten Vollzeit (${days} Tage)</p>`;
+  if (lastEnd && lastEnd < simEnd) {
+    const days = dayDiff(lastEnd, simEnd);
+    html += `<p style="margin:4px 0;color:#6c757d;">• <b>${formatDateStr(addDays(lastEnd, 1))} – ${formatDateStr(simEnd)}</b>: Beide arbeiten Vollzeit (${days} Tage)</p>`;
   }
   document.getElementById("textTimeline").innerHTML = html;
 }

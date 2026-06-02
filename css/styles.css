@@ -279,6 +279,39 @@ hr { border: 0; border-top: 1px solid #dee2e6; margin: 20px 0; }
 }
 .chart-container { position: relative; height: 320px; width: 100%; }
 
+/* ============ Annahmen-Box ============ */
+.assumptions-box {
+    margin-top: 30px;
+    padding: 14px 18px;
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #4a3a00;
+}
+.assumptions-box summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 4px 0;
+    user-select: none;
+}
+.assumptions-box summary:hover { color: #b76e00; }
+.assumptions-content { margin-top: 12px; }
+.assumptions-content h4 {
+    margin: 14px 0 6px;
+    font-size: 13px;
+    color: #6b4f00;
+}
+.assumptions-content h4:first-child { margin-top: 0; }
+.assumptions-content ul {
+    margin: 0 0 10px;
+    padding-left: 20px;
+    line-height: 1.55;
+}
+.assumptions-content li { margin-bottom: 4px; }
+.assumptions-content a { color: #b76e00; }
+
 /* ============ Footer ============ */
 .legal-footer {
     margin-top: 30px;

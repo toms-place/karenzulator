@@ -16,7 +16,7 @@
     <p>
       Tagesgenaue Simulation auf Basis von <b>§§ 24, 24a, 24b KBGG</b> für die volle Periode <b>2 Jahre ab Geburt</b>.
       Höchstbetrag, Wochengeld-Faktor, 61-Tage-Regel, max. 2 Wechsel sowie der Partnerschaftsbonus
-      werden gesetzeskonform berücksichtigt.
+      werden gesetzeskonform berücksichtigt - trotzdem ist dies nur eine Schätzung!
     </p>
 
     <div class="grid">
@@ -95,6 +95,11 @@
             <span class="input-group-append">€</span>
           </div>
         </div>
+        <span class="field-desc">
+          13./14. Monatsgehalt (Sonderzahlungen) fallen während Karenz aliquot zugunsten
+          der KBG-Beziehszeit weg. Das Tool rechnet einfachheitshalber nur mit dem laufenden Monatsnetto, nicht mit
+          Urlaubs-/Weihnachtsgeld-Effekten.
+        </span>
 
         <hr>
 
@@ -114,7 +119,7 @@
           </div>
         </div>
         <span class="field-desc">
-          Absolute Zuverdienstgrenze für eaKBG: <b>8 600 € / Kalenderjahr</b> (§ 24 Abs. 1 Z 3 KBGG).
+          Absolute Zuverdienstgrenze für eaKBG: <b>€ 8.600 / Kalenderjahr</b> (§ 24 Abs. 1 Z 3 KBGG).
           Die App warnt, wenn überschritten.
         </span>
 
@@ -168,21 +173,21 @@
           <label class="check-label">
             <input type="checkbox" id="ekpDone" checked> Alle Eltern-Kind-Pass-Untersuchungen erledigt
           </label>
-          <span class="field-desc">Sonst: −1 300 € pro Elternteil (§ 24a Abs. 4 KBGG).</span>
+          <span class="field-desc">Sonst: −€ 1.300 pro Elternteil (§ 24a Abs. 4 KBGG).</span>
         </div>
 
         <hr>
 
-        <h3>6. Optimieren</h3>
+        <h3>6. Optimieren (optional)</h3>
         <div class="form-group">
           <label for="optGoal">Optimierungsziel:</label>
           <select id="optGoal">
-            <option value="household" selected>Maximales Haushaltsbudget (2 Jahre)</option>
+            <option value="household">Maximales Haushaltsbudget (2 Jahre)</option>
             <option value="state">Maximaler Staatsbeitrag (<span data-kbg-label>eaKBG</span> + Bonus)</option>
-            <option value="bonus">Mit Partnerschaftsbonus &amp; max. Haushalt</option>
+            <option value="bonus" selected>Mit Partnerschaftsbonus &amp; max. Haushalt</option>
           </select>
         </div>
-        <button id="optimizeBtn" class="btn-primary">⚡ Bestmögliche Aufteilung berechnen</button>
+        <button id="optimizeBtn" class="btn-primary">In bestmögliche Aufteilung ändern<br />(optional - BETA) </button>
         <div id="optimizerResult" class="optimizer-result"></div>
       </div>
 
@@ -199,7 +204,7 @@
         </div>
         <div class="alert-box" id="zuverdienstAlertBox">
           <strong>Zuverdienst-Warnung:</strong> Der Zuverdienst eines Elternteils überschreitet die
-          Grenze von <b>8 600 €/Jahr</b> während des eaKBG-Bezugs.
+          Grenze von <b>€ 8.600/Jahr</b> während des eaKBG-Bezugs.
         </div>
 
         <div class="dashboard-section">
@@ -235,7 +240,7 @@
               <div class="subtext">max. 2 erlaubt (§ 24b Abs. 2 KBGG)</div>
             </div>
             <div class="card" id="bonusCard">
-              <h4>Partnerschaftsbonus (1 000 €)</h4>
+              <h4>Partnerschaftsbonus (€ 1.000)</h4>
               <div class="value" id="bonusHtml">—</div>
             </div>
           </div>
@@ -283,13 +288,72 @@
           <div id="textTimeline" style="font-size:13px;"></div>
         </div>
 
-        <h3>Exakte Monatsaufschlüsselung</h3>
+        <h3 style="margin-top:30px;">Exakte Monatsaufschlüsselung</h3>
         <div class="calendar-view" id="calendarView"></div>
       </div>
     </div>
 
+    <details class="assumptions-box">
+      <summary>📋 Annahmen &amp; was <b>nicht</b> berücksichtigt wird</summary>
+      <div class="assumptions-content">
+        <h4>So wird gerechnet</h4>
+        <ul>
+          <li><b>Wochengeld</b> = Netto / 30 × 1,17 (Sonderzahlungsfaktor für 13./14. Gehalt), gedeckelt mit dem
+            Netto-Äquivalent der ASVG-Höchstbeitragsgrundlage (~€ 4.500/Monat netto).</li>
+          <li><b>eaKBG-Tagsatz</b> = 80 % des fiktiven Wochengelds, gedeckelt mit € 80,12/Tag (§ 24a Abs. 2 KBGG, Werte
+            2026).</li>
+          <li><b>Pauschal-KBG (KBG-Konto)</b> = Gesamttopf ÷ gewählte Tage; Gesamttopf 2026 ≈ € 16.449,50 (Aufteilung)
+            bzw. € 12.366 (Alleinbezug).</li>
+          <li><b>Geringfügigkeit</b> während unbezahlter Karenz wird als Tageseinkommen verteilt.</li>
+          <li><b>Erwerbseinkommen</b> wird als 12× pro Jahr eingegeben — das eingegebene Netto entspricht also dem
+            reinen Monatsnetto <i>ohne</i> Sonderzahlungen.</li>
+        </ul>
+
+        <h4>Was <b>nicht</b> berücksichtigt wird</h4>
+        <ul>
+          <li><b>13./14. Monatsgehalt (Sonderzahlungen)</b> während der Karenz — diese fallen während Karenz
+            <i>aliquot</i> zugunsten der KBG-Beziehszeit weg. Das Tool rechnet nur mit dem laufenden Monatsnetto, nicht
+            mit Urlaubs-/Weihnachtsgeld-Effekten.
+          </li>
+          <li><b>Lohnsteuer und Sozialversicherung auf Zuverdienst:</b> Eingegebene Werte sind Netto. Steuerlich wird
+            KBG nicht versteuert (§ 26 KBGG, § 3 Abs. 1 Z 5 EStG), beeinflusst aber den Progressionsvorbehalt — nicht
+            modelliert.</li>
+          <li><b>Familienbeihilfe &amp; Kinderabsetzbetrag</b> (mtl. ~€ 135 + € 67,80/Kind 2026) — laufen unabhängig
+            weiter und werden nicht zum Haushaltseinkommen addiert.</li>
+          <li><b>Familienzeitbonus</b> (ca. € 50/Tag × 28–31 Tage für den Vater im 1. Babymonat) — wird ggf. vom
+            späteren KBG abgezogen.</li>
+          <li><b>Beihilfe für Alleinerziehende/Geringverdiener</b> (§ 9 KBGG, +€ 6,06/Tag, max. 365 Tage).</li>
+          <li><b>Mutterschutz vor der Geburt</b> (8 Wochen Wochengeld <i>vor</i> der Geburt) — nur das nachgeburtliche
+            Wochengeld ist abgebildet.</li>
+          <li><b>Kündigungs-/Entlassungsschutz</b> bis 4 Wochen nach Karenzende (MSchG/VKG) — rein arbeitsrechtlich.
+          </li>
+          <li><b>Krankenversicherung</b> der KBG-Bezieher (beitragsfrei mitversichert während Bezug, § 28 KBGG) —
+            kostenneutral, aber nicht ausgewiesen.</li>
+          <li><b>Pensionsversicherung:</b> Kindererziehungszeiten (max. 48 Monate je Kind) werden bei der Pension
+            angerechnet — nicht im Tool dargestellt.</li>
+          <li><b>Mehrlingsgeburten</b> (Pauschal-KBG +50 % Tagsatz für jedes weitere Kind, § 3a KBGG).</li>
+          <li><b>Behinderungs-/Härtefall-Verlängerungen</b> (§ 5 Abs. 6, § 5a KBGG).</li>
+          <li><b>Zuverdienst-Individualgrenze:</b> Pauschal-KBG erlaubt alternativ <b>60 % der Letzteinkünfte</b> (statt
+            fixer € 18.000) — hier nur der Pauschalwert geprüft.</li>
+          <li><b>Rückforderungsrisiko bei Überschreiten der Zuverdienstgrenze:</b> § 8a KBGG sieht eine
+            Einschleifregelung vor — nicht modelliert.</li>
+          <li><b>EKP (Eltern-Kind-Pass-Untersuchungen):</b> Strafe von € 1.300/Elternteil ist als Checkbox abgebildet,
+            aber <i>welche</i> der 10 Untersuchungen fehlen, wird nicht geprüft.</li>
+          <li><b>Inflation/Valorisierung</b> über mehrere Jahre — alle Beträge in Euro 2026.</li>
+          <li><b>Steuerprogression beim Wiedereinstieg</b> (Jahressechstel, Aliquotierung des Urlaubsgelds) — nicht
+            modelliert.</li>
+        </ul>
+
+        <p style="margin-top:14px; font-size:12px; color:#6c757d;">
+          → Für eine verbindliche Berechnung wende dich an <b>ÖGK</b>, <b>AK</b> oder
+          <a href="https://www.frauen-familien-jugend.bka.gv.at/familie/finanzielle-unterstuetzungen/kinderbetreuungsgeld.html"
+            target="_blank" rel="noopener">BKA Familienportal</a>.
+        </p>
+      </div>
+    </details>
+
     <footer class="legal-footer">
-      Rechtsstand: KBGG idF 2026, Höchstbetrag eaKBG 80,12 €/Tag (§ 24a Abs. 2/2a, ASVG-Anpassungsfaktor).
+      Rechtsstand: KBGG idF 2026, Höchstbetrag eaKBG € 80,12/Tag (§ 24a Abs. 2/2a, ASVG-Anpassungsfaktor).
       Diese Anwendung ist eine Schätzung &amp; ersetzt keine Beratung der ÖGK / AK.
     </footer>
   </div>
