@@ -22,13 +22,16 @@
     <p>
       Tagesgenaue Simulation auf Basis von <b>§§ 24, 24a, 24b KBGG</b> für die volle Periode <b>2 Jahre ab Geburt</b>.
       Höchstbetrag, Wochengeld-Faktor, 61-Tage-Regel, max. 2 Wechsel sowie der Partnerschaftsbonus
-      werden gesetzeskonform berücksichtigt - trotzdem ist dies nur eine Schätzung!
+      werden gesetzeskonform berücksichtigt.
     </p>
+    <h2>
+      Nur Schätzungen - <span data-kbg-label>eaKBG</span> ist komplex!
+    </h2>
 
     <div class="grid">
       <!-- ============== SIDEBAR / CONTROLS ============== -->
       <div class="controls">
-        <h3>1. Basis &amp; 1. Wechsel</h3>
+        <h3>1. Basis &amp; Wechsel</h3>
         <div class="form-group">
           <label for="kbgVariant">KBG-Variante:</label>
           <select id="kbgVariant">
@@ -57,11 +60,11 @@
 
         <div class="form-group nested">
           <label class="check-label">
-            <input type="checkbox" id="useOverlap" checked> <b>Gemeinsamer KBG-Bezug beim 1. Wechsel?</b>
+            <input type="checkbox" id="useOverlap"> <b>Gemeinsamer KBG-Bezug beim 1. Wechsel?</b>
           </label>
           <span class="field-desc">§ 24b Abs. 3 KBGG: bis zu 31 Tage gleichzeitig möglich – verkürzt die
             Anspruchsdauer.</span>
-          <div id="overlapControls" style="margin-top:12px;">
+          <div id="overlapControls" style="margin-top:12px; display: none;">
             <div class="form-group">
               <label for="overlapDays">Tage Überschneidung (1–31):</label>
               <input type="number" id="overlapDays" value="14" min="1" max="31">
@@ -329,8 +332,14 @@
           <li><b>Familienzeitbonus</b> (ca. € 50/Tag × 28–31 Tage für den Vater im 1. Babymonat) — wird ggf. vom
             späteren KBG abgezogen.</li>
           <li><b>Beihilfe für Alleinerziehende/Geringverdiener</b> (§ 9 KBGG, +€ 6,06/Tag, max. 365 Tage).</li>
-          <li><b>Mutterschutz vor der Geburt</b> (8 Wochen Wochengeld <i>vor</i> der Geburt) — nur das nachgeburtliche
-            Wochengeld ist abgebildet.</li>
+          <li><b>Mutterschutz vor der Geburt</b> (8 Wochen Wochengeld <i>vor</i> der Geburt, § 3 Abs. 1 MSchG) — nur
+            das nachgeburtliche Wochengeld ist abgebildet.</li>
+          <li><b>Verlängerter Mutterschutz nach der Geburt</b> (§ 5 Abs. 2 MSchG): Das Tool rechnet fix mit
+            <b>8 Wochen (56 Tagen)</b> Wochengeld nach der Geburt. Bei <b>Kaiserschnitt, Frühgeburt oder
+              Mehrlingsgeburt</b> verlängert sich die Schutzfrist auf <b>12 Wochen (84 Tage)</b> — der KBG-Beginn
+            verschiebt sich dann um ca. 28 Tage, und es fließt entsprechend länger Wochengeld statt KBG. Bei
+            Frühgeburten kommt zusätzlich die nicht ausgeschöpfte vorgeburtliche Schutzfrist hinzu.
+          </li>
           <li><b>Kündigungs-/Entlassungsschutz</b> bis 4 Wochen nach Karenzende (MSchG/VKG) — rein arbeitsrechtlich.
           </li>
           <li><b>Krankenversicherung</b> der KBG-Bezieher (beitragsfrei mitversichert während Bezug, § 28 KBGG) —

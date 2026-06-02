@@ -58,8 +58,8 @@ h1, h2, h3 { color: var(--primary); margin-top: 0; }
     grid-template-columns: 380px 1fr;
     gap: 30px;
 }
-@media (max-width: 1000px) {
-    .grid { grid-template-columns: 1fr; }
+
+@media (max-width: 1536px) {
     /* Limit Sidebar + Main to viewport width to prevent horizontal scroll.
        Wert wird in engeren Breakpoints unten an das jeweilige Padding angepasst. */
     .grid > .controls,
@@ -68,6 +68,9 @@ h1, h2, h3 { color: var(--primary); margin-top: 0; }
         min-width: 0;
         overflow-x: hidden;
     }
+}
+@media (max-width: 1000px) {
+    .grid { grid-template-columns: 1fr; }
 }
 
 /* ============ Sidebar ============ */
