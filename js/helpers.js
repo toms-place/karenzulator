@@ -5,7 +5,8 @@
 
 // ---------- Rechtskonstanten (KBGG idF 2026) ----------
 const KBG_LAW = {
-  WOCHENGELD_DAYS: 56, // 8 Wochen nach Geburt
+  WOCHENGELD_DAYS: 56, // 8 Wochen nach Geburt (§ 5 Abs. 1 MSchG, vaginale Geburt)
+  WOCHENGELD_DAYS_EXTENDED: 84, // 12 Wochen (§ 5 Abs. 2 MSchG: Kaiserschnitt, Frühgeburt, Mehrlingsgeburt)
   MAX_TOTAL_DAYS: 426, // § 24b Abs. 2 (max ab Geburt bei Aufteilung)
   SINGLE_PARENT_DAYS: 365, // § 24b Abs. 1
   UNUEBERTRAGBAR_DAYS: 61, // § 24b Abs. 2 letzter Satz

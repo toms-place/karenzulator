@@ -13,7 +13,10 @@ function* candidateGenerator(base) {
   // Window: birth+56 … birth + variantMaxDays-1
   const variantMaxDays =
     base.variant === "pauschal" ? base.pauschalDays : KBG_LAW.MAX_TOTAL_DAYS;
-  const earliest = addDays(base.birthDate, KBG_LAW.WOCHENGELD_DAYS);
+  const earliest = addDays(
+    base.birthDate,
+    base.wochengeldDays || KBG_LAW.WOCHENGELD_DAYS,
+  );
   const latest = addDays(base.birthDate, variantMaxDays - 1);
   const stepDays = 7;
 

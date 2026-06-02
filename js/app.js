@@ -39,6 +39,11 @@ function readInputs() {
     gfM: parseFloat(document.getElementById("gfMutter").value) || 0,
     gfV: parseFloat(document.getElementById("gfVater").value) || 0,
     ekpDone: document.getElementById("ekpDone").checked,
+    birthType: document.getElementById("birthType").value, // 'standard' | 'extended'
+    wochengeldDays:
+      document.getElementById("birthType").value === "extended"
+        ? KBG_LAW.WOCHENGELD_DAYS_EXTENDED
+        : KBG_LAW.WOCHENGELD_DAYS,
     variant: document.getElementById("kbgVariant").value, // 'ea' | 'pauschal'
     pauschalDays: Math.max(
       KBG_LAW.PAUSCHAL_MIN_DAYS_SPLIT,
@@ -56,7 +61,8 @@ function readInputs() {
 function buildBlocks(p) {
   const blocks = [];
   const wgStart = new Date(p.birthDate);
-  const wgEnd = addDays(wgStart, KBG_LAW.WOCHENGELD_DAYS - 1);
+  const wgDays = p.wochengeldDays || KBG_LAW.WOCHENGELD_DAYS;
+  const wgEnd = addDays(wgStart, wgDays - 1);
   const lbl = kbgLabel(p.variant);
 
   // Beim 1. Wechsel mit "beide" wird die Anspruchsdauer um overlapDays gekürzt
@@ -402,10 +408,10 @@ function evaluateCompliance(p, blocks, sim) {
   const variantMaxDays =
     p.variant === "pauschal" ? p.pauschalDays : KBG_LAW.MAX_TOTAL_DAYS;
   const usedKbgDays = sim.mutterKbgDays + sim.vaterKbgDays;
-  // Wochengeld-Tage zählen für 426/x mit — daher +56
+  // Wochengeld-Tage zählen für 426/x mit — daher + tatsächliche Wochengeld-Tage
   const unusedDays = Math.max(
     0,
-    variantMaxDays - usedKbgDays - KBG_LAW.WOCHENGELD_DAYS,
+    variantMaxDays - usedKbgDays - (p.wochengeldDays || KBG_LAW.WOCHENGELD_DAYS),
   );
 
   return {

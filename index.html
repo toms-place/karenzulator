@@ -36,7 +36,7 @@
           <label for="kbgVariant">KBG-Variante:</label>
           <select id="kbgVariant">
             <option value="ea" selected>Einkommensabhängiges KBG (eaKBG, max. 426 T)</option>
-            <option value="pauschal">Pauschales KBG (KBG-Konto, max. 1 063 T)</option>
+            <option value="pauschal">Pauschales KBG (KBG-Konto, max. 1063 T)</option>
           </select>
           <span class="field-desc">
             <b>Wichtig:</b> Beide Eltern müssen dieselbe Variante wählen (§ 26a KBGG).
@@ -46,11 +46,19 @@
         <div class="form-group" id="pauschalDaysWrap" style="display:none;">
           <label for="pauschalDays">Pauschal: gewählte Anspruchsdauer (Tage gesamt):</label>
           <input type="number" id="pauschalDays" value="730" min="456" max="1063" step="1">
-          <span class="field-desc">Bei Aufteilung: 456–1 063 Tage. Längere Dauer = niedrigerer Tagsatz.</span>
+          <span class="field-desc">Bei Aufteilung: 456–1063 Tage. Längere Dauer = niedrigerer Tagsatz.</span>
         </div>
         <div class="form-group">
           <label for="birthDate">Geburtsdatum des Kindes:</label>
           <input type="date" id="birthDate" value="2026-09-01">
+        </div>
+        <div class="form-group">
+          <label for="birthType">Art der Geburt (Mutterschutz nach Geburt):</label>
+          <select id="birthType">
+            <option value="standard" selected>Vaginale Geburt &mdash; 8 Wochen / 56 Tage (§ 5 Abs. 1 MSchG)</option>
+            <option value="extended">Kaiserschnitt, Frühgeburt oder Mehrlingsgeburt &mdash; 12 Wochen / 84 Tage (§ 5 Abs. 2 MSchG)</option>
+          </select>
+          <span class="field-desc">Verlängerter Mutterschutz schiebt den KBG-Beginn um 28 Tage nach hinten und verkürzt die KBG-Phase entsprechend (Gesamtdeckel 426 Tage ab Geburt bleibt).</span>
         </div>
         <div class="form-group">
           <label for="switchDate">1. Wechsel (Bezug → Vater):</label>
@@ -334,11 +342,10 @@
           <li><b>Beihilfe für Alleinerziehende/Geringverdiener</b> (§ 9 KBGG, +€ 6,06/Tag, max. 365 Tage).</li>
           <li><b>Mutterschutz vor der Geburt</b> (8 Wochen Wochengeld <i>vor</i> der Geburt, § 3 Abs. 1 MSchG) — nur
             das nachgeburtliche Wochengeld ist abgebildet.</li>
-          <li><b>Verlängerter Mutterschutz nach der Geburt</b> (§ 5 Abs. 2 MSchG): Das Tool rechnet fix mit
-            <b>8 Wochen (56 Tagen)</b> Wochengeld nach der Geburt. Bei <b>Kaiserschnitt, Frühgeburt oder
-              Mehrlingsgeburt</b> verlängert sich die Schutzfrist auf <b>12 Wochen (84 Tage)</b> — der KBG-Beginn
-            verschiebt sich dann um ca. 28 Tage, und es fließt entsprechend länger Wochengeld statt KBG. Bei
-            Frühgeburten kommt zusätzlich die nicht ausgeschöpfte vorgeburtliche Schutzfrist hinzu.
+          <li><b>Frühgeburten-Bonus auf den Mutterschutz</b> (§ 5 Abs. 2 MSchG): Bei Frühgeburten verlängert
+            sich die nachgeburtliche Schutzfrist um die nicht ausgeschöpfte vorgeburtliche Schutzfrist (mindestens
+            jedoch 12 Wochen). Das Tool rechnet pauschal mit 12 Wochen — der individuelle Übertrag ist nicht
+            abgebildet.</li>
           </li>
           <li><b>Kündigungs-/Entlassungsschutz</b> bis 4 Wochen nach Karenzende (MSchG/VKG) — rein arbeitsrechtlich.
           </li>
