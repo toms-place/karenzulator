@@ -33,6 +33,26 @@ body {
 }
 h1, h2, h3 { color: var(--primary); margin-top: 0; }
 
+/* ============ App Header (Logo + H1) ============ */
+.app-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+}
+.app-header h1 { margin: 0; }
+.app-logo {
+    flex: 0 0 auto;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(29, 53, 87, 0.18);
+}
+@media (max-width: 768px) {
+    .app-header { gap: 10px; }
+    .app-logo { width: 36px; height: 36px; border-radius: 8px; }
+}
+
 .grid {
     display: grid;
     grid-template-columns: 380px 1fr;
@@ -40,12 +60,11 @@ h1, h2, h3 { color: var(--primary); margin-top: 0; }
 }
 @media (max-width: 1000px) {
     .grid { grid-template-columns: 1fr; }
-    /* Limit Sidebar + Main Viewport-Width
-      to prevent horizontal scroll on small screens
-      24px = body+container-Padding. */
+    /* Limit Sidebar + Main to viewport width to prevent horizontal scroll.
+       Wert wird in engeren Breakpoints unten an das jeweilige Padding angepasst. */
     .grid > .controls,
     .grid > .dashboard-section {
-        max-width: calc(100vw - 24px);
+        max-width: calc(100vw - 28px);
         min-width: 0;
         overflow-x: hidden;
     }
@@ -97,8 +116,26 @@ input[type="date"], input[type="number"], select {
     border-radius: 6px;
     font-size: 14px;
     background: #fff;
+}
+/* iOS Safari: date-Inputs nicht entkleiden (sonst kollabiert Text vertikal),
+   aber Mindesthöhe erzwingen, damit der native Picker-Text nicht abgeschnitten wird. */
+input[type="date"] {
+    min-height: 42px;
+    line-height: 1.2;
     -webkit-appearance: none;
     appearance: none;
+    -webkit-min-logical-height: 1.2em;
+}
+input[type="number"], select {
+    -webkit-appearance: none;
+    appearance: none;
+}
+select {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path fill='%236c757d' d='M6 8L0 0h12z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 10px;
+    padding-right: 32px;
 }
 .input-group { display: flex; align-items: stretch; width: 100%; }
 .input-group input {
@@ -340,32 +377,33 @@ hr { border: 0; border-top: 1px solid #dee2e6; margin: 20px 0; }
 
 /* ============ Responsive / Mobile ============ */
 @media (max-width: 768px) {
-    body { padding: 8px; }
-    .container { padding: 16px; border-radius: 8px; max-width: 100%; overflow-x: hidden; }
+    body { padding: 4px; }
+    .container { padding: 10px; border-radius: 8px; max-width: 100%; overflow-x: hidden; }
     h1 { font-size: 22px; line-height: 1.3; }
     h2 { font-size: 18px; }
     h3 { font-size: 16px; }
 
-    .grid { gap: 16px; }
+    .grid { gap: 12px; }
 
-    .controls { padding: 14px; min-width: 0; }
-    .form-group { margin-bottom: 14px; min-width: 0; }
-    .form-group.nested { padding: 10px; }
+    .controls { padding: 10px; min-width: 0; }
+    .form-group { margin-bottom: 12px; min-width: 0; }
+    .form-group.nested { padding: 8px; }
 
     .dashboard {
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 10px;
+        gap: 8px;
     }
-    .card { padding: 12px; }
+    .card { padding: 10px; }
     .card .value { font-size: 16px; }
     .card h4 { font-size: 10px; }
 
     .calendar-view {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 10px;
     }
+    .month-box { padding: 10px; }
 
-    .timeline-wrapper { padding: 12px; }
+    .timeline-wrapper { padding: 10px; }
     .timeline-bar { height: 28px; }
     .timeline-segment { font-size: 10px; }
 
@@ -373,17 +411,27 @@ hr { border: 0; border-top: 1px solid #dee2e6; margin: 20px 0; }
     .legend-item { font-size: 11px; }
 
     .chart-container { height: 240px; }
-    .chart-card { padding: 10px; }
+    .chart-card { padding: 8px; }
 
-    .alert-box { font-size: 12px; padding: 10px 12px; }
+    .alert-box { font-size: 12px; padding: 8px 10px; }
+
+    .assumptions-box { padding: 10px 12px; }
 
     input[type="date"], input[type="number"], select {
         font-size: 16px; /* iOS: kein Auto-Zoom bei Focus */
+        padding: 9px;
     }
+    input[type="date"] { min-height: 44px; } /* iOS Touch-Target */
 }
 
 @media (max-width: 420px) {
     .dashboard { grid-template-columns: 1fr; }
     h1 { font-size: 19px; }
-    .container { padding: 12px; }
+    .container { padding: 8px; }
+    .controls { padding: 8px; }
+    /* Viewport-Berechnung an reduziertes Padding anpassen (4px body + 8px container = 12px je Seite). */
+    .grid > .controls,
+    .grid > .dashboard-section {
+        max-width: calc(100vw - 8px);
+    }
 }
