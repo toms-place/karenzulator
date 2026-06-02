@@ -411,7 +411,9 @@ function evaluateCompliance(p, blocks, sim) {
   // Wochengeld-Tage zählen für 426/x mit — daher + tatsächliche Wochengeld-Tage
   const unusedDays = Math.max(
     0,
-    variantMaxDays - usedKbgDays - (p.wochengeldDays || KBG_LAW.WOCHENGELD_DAYS),
+    variantMaxDays -
+      usedKbgDays -
+      (p.wochengeldDays || KBG_LAW.WOCHENGELD_DAYS),
   );
 
   return {
