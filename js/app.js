@@ -82,7 +82,7 @@ function buildBlocks(p) {
     who: "Mutter",
     start: wgStart,
     end: wgEnd,
-    label: "Wochengeld",
+    label: "WG",
     class: "bg-wochengeld",
   });
 
@@ -96,7 +96,7 @@ function buildBlocks(p) {
     who: "Mutter",
     start: b1Start,
     end: m1End,
-    label: lbl + " Mutter",
+    label: lbl + " M",
     class: "bg-mutter-kbg",
   });
 
@@ -125,7 +125,7 @@ function buildBlocks(p) {
       who: "Vater",
       start: b2Start,
       end: b2End,
-      label: lbl + " Vater",
+      label: lbl + " V",
       class: "bg-vater-kbg",
     });
   }
@@ -140,7 +140,7 @@ function buildBlocks(p) {
         who: "Mutter",
         start: b3Start,
         end: b3End,
-        label: lbl + " Mutter (2)",
+        label: lbl + " M (2)",
         class: "bg-mutter-kbg-2",
       });
     }
@@ -242,8 +242,8 @@ function simulate(p, blocks) {
 
     const block = blocks.find((b) => loopDate >= b.start && loopDate <= b.end);
 
-    let activeM = { label: "Vollzeit Arbeiten", class: "bg-arbeiten" };
-    let activeV = { label: "Vollzeit Arbeiten", class: "bg-arbeiten" };
+    let activeM = { label: "Arbeiten", class: "bg-arbeiten" };
+    let activeV = { label: "Arbeiten", class: "bg-arbeiten" };
     let mMoney = 0,
       vMoney = 0;
 
@@ -257,7 +257,7 @@ function simulate(p, blocks) {
 
     if (block) {
       if (block.type === "wG") {
-        activeM = { label: "Wochengeld", class: "bg-wochengeld" };
+        activeM = { label: "WG", class: "bg-wochengeld" };
         mMoney = wgDaily;
         vMoney = dailyWorkV;
         result.totalStateMoney += wgDaily;
@@ -280,8 +280,8 @@ function simulate(p, blocks) {
       } else if (block.type === "overlap") {
         const lbl = kbgLabel(p.variant);
         if (block.finance === "beide") {
-          activeM = { label: lbl + " Mutter", class: "bg-mutter-kbg" };
-          activeV = { label: lbl + " Vater", class: "bg-vater-kbg" };
+          activeM = { label: lbl + " M", class: "bg-mutter-kbg" };
+          activeV = { label: lbl + " V", class: "bg-vater-kbg" };
           mMoney = kbgDailyM + gfDailyM;
           vMoney = kbgDailyV + gfDailyV;
           result.totalStateMoney += kbgDailyM + kbgDailyV;
@@ -290,7 +290,7 @@ function simulate(p, blocks) {
           result.mutterKbgDays++;
           result.vaterKbgDays++;
         } else if (block.finance === "mutter") {
-          activeM = { label: lbl + " Mutter", class: "bg-mutter-kbg" };
+          activeM = { label: lbl + " M", class: "bg-mutter-kbg" };
           activeV = { label: "Karenz Vater (unbezahlt)", class: "bg-ext-v" };
           mMoney = kbgDailyM + gfDailyM;
           // Vater: Geringfügigkeit zählt weiter (kein KBG-Bezug → keine Zuverdienst-Grenze)
@@ -300,7 +300,7 @@ function simulate(p, blocks) {
           result.mutterKbgDays++;
         } else {
           activeM = { label: "Karenz Mutter (unbezahlt)", class: "bg-ext-m" };
-          activeV = { label: lbl + " Vater", class: "bg-vater-kbg" };
+          activeV = { label: lbl + " V", class: "bg-vater-kbg" };
           mMoney = gfDailyM;
           vMoney = kbgDailyV + gfDailyV;
           result.totalStateMoney += kbgDailyV;
@@ -584,26 +584,24 @@ function renderCalendar(monthsData) {
     let badgesM = "",
       badgesV = "";
     for (const l in m.statesM)
-      badgesM += `<div class="phase-badge ${m.statesM[l].class}">${l} <span>${m.statesM[l].days} T</span></div>`;
+      badgesM += `<div class="phase-badge ${m.statesM[l].class}">${m.statesM[l].days}T | ${l}</div>`;
     for (const l in m.statesV)
-      badgesV += `<div class="phase-badge ${m.statesV[l].class}">${l} <span>${m.statesV[l].days} T</span></div>`;
+      badgesV += `<div class="phase-badge ${m.statesV[l].class}">${m.statesV[l].days}T | ${l}</div>`;
     box.innerHTML = `
             <div>
-                <div class="month-title">${getMonthName(key)}</div>
-                <div class="person-strip">
-                    <div class="person-name color-mutter">Mutter</div>
-                    <div class="day-strip">${badgesM}</div>
-                </div>
-                <div class="person-strip">
-                    <div class="person-name color-vater">Vater</div>
-                    <div class="day-strip">${badgesV}</div>
-                </div>
-            </div>
-            <div class="finance-footer">
-                <div class="finance-row color-mutter"><span>Netto Mutter:</span><span>${formatEur.format(m.monM)}</span></div>
-                <div class="finance-row color-vater"><span>Netto Vater:</span><span>${formatEur.format(m.monV)}</span></div>
-                <div class="finance-row" style="font-weight:bold;margin-top:4px;font-size:13px;border-top:1px dashed #ccc;padding-top:4px;">
-                    <span>Haushalt:</span><span>${formatEur.format(m.monM + m.monV)}</span>
+              <div class="month-header">
+                  <div class="month-title">${getMonthName(key)}</div>
+                  <div class="finance-total">${formatEur.format(m.monM + m.monV)}</div>
+              </div>
+                <div class="person-grid">
+                  <div class="person-strip">
+                      <div class="person-name color-mutter">Mutter: ${formatEur.format(m.monM)}</div>
+                      <div class="day-strip">${badgesM}</div>
+                  </div>
+                  <div class="person-strip">
+                      <div class="person-name color-vater">Vater: ${formatEur.format(m.monV)}</div>
+                      <div class="day-strip">${badgesV}</div>
+                  </div>
                 </div>
             </div>`;
     c.appendChild(box);
