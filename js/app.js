@@ -901,8 +901,9 @@ function bindUI() {
   variantSel.addEventListener("change", togglePauschal);
   togglePauschal();
 
-  const shareBtn = document.getElementById("shareBtn");
-  if (shareBtn) shareBtn.addEventListener("click", shareConfiguration);
+  const exportConfigLinkBtn = document.getElementById("exportConfigLinkBtn");
+  if (exportConfigLinkBtn)
+    exportConfigLinkBtn.addEventListener("click", shareConfiguration);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

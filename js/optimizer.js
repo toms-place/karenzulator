@@ -116,32 +116,61 @@ function runOptimizer() {
     const top = results.slice(0, 3);
     const best = top[0];
 
+    // Globales Speichern der Top-Szenarien für Klick-Events
+    window.lastTopScenarios = top;
+
     // Beste Konfiguration in die Form übernehmen
     applyScenarioToForm(best.p);
     calculateTimeline();
 
     // Ergebnis anzeigen
-    let html = `<h4>✓ Optimum gefunden (${count} Szenarien geprüft)</h4>`;
+    let html = `<h4>✓ Optimum gefunden (${count} Szenarien geprüft)<br><span style="font-size:11px; color:#6c757d; font-weight:normal;">Klicke auf ein Szenario, um es anzuwenden:</span></h4>`;
     top.forEach((r, i) => {
       const unusedHint =
         r.comp.unusedDays > 30
           ? ` · <span style="color:#b76e00;">⚠️ ${r.comp.unusedDays} ungenutzte KBG-Tage</span>`
           : "";
-      html += `<div style="margin-bottom:8px;padding:6px;border-radius:4px;background:${i === 0 ? "#e8f5e9" : "#f8f9fa"};">
-                <b>${i === 0 ? "★ Beste" : i + 1 + "."} Aufteilung</b><br>
-                ${describeScenario(r)}<br>
-                Haushalt: <b>${formatEur.format(r.householdMoney)}</b> ·
-                Staat: ${formatEur.format(r.stateMoney)} ·
-                Bonus: ${r.comp.bonusEligible ? "✓" : "✗"} ·
-                Verhältnis: ${Math.round(r.comp.mRatio * 100)}:${Math.round(r.comp.vRatio * 100)}${unusedHint}
+      html += `<div onclick="applyOptimizerScenario(${i})" class="scenario-card" style="cursor:pointer; margin-bottom:8px;padding:8px;border-radius:6px;border: 2px solid ${i === 0 ? '#81c784' : 'transparent'};background:${i === 0 ? "#e8f5e9" : "#f8f9fa"}; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s;">
+                <b style="color:${i === 0 ? '#2e7d32' : '#333'}">${i === 0 ? "★ Beste" : i + 1 + "."} Aufteilung</b><br>
+                <span style="font-size:13px; display:block; margin:4px 0;">${describeScenario(r)}</span>
+                <span style="font-size:12px; color:#555;">
+                  Haushalt: <b>${formatEur.format(r.householdMoney)}</b> ·
+                  Staat: ${formatEur.format(r.stateMoney)}<br>
+                  Bonus: ${r.comp.bonusEligible ? "✓" : "✗"} ·
+                  Verhältnis: ${Math.round(r.comp.mRatio * 100)}:${Math.round(r.comp.vRatio * 100)}${unusedHint}
+                </span>
             </div>`;
     });
     out.innerHTML = html;
     out.classList.add("active");
     btn.disabled = false;
-    btn.innerText = "⚡ Bestmögliche Aufteilung berechnen";
+    btn.innerText = "✨ Automatisch optimieren (BETA)";
   }, 30);
 }
+
+window.applyOptimizerScenario = function (index) {
+  if (!window.lastTopScenarios || !window.lastTopScenarios[index]) return;
+
+  const scenario = window.lastTopScenarios[index];
+  
+  // Visuelles Feedback
+  const out = document.getElementById("optimizerResult");
+  const cards = out.querySelectorAll(".scenario-card");
+  cards.forEach((card, i) => {
+    if (i === index) {
+      card.style.background = "#e8f5e9";
+      card.style.border = "2px solid #81c784";
+      card.querySelector("b").style.color = "#2e7d32";
+    } else {
+      card.style.background = "#f8f9fa";
+      card.style.border = "2px solid transparent";
+      card.querySelector("b").style.color = "#333";
+    }
+  });
+
+  applyScenarioToForm(scenario.p);
+  calculateTimeline();
+};
 
 function applyScenarioToForm(p) {
   document.getElementById("switchDate").value = isoDate(p.switchDate1);
