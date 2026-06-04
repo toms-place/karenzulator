@@ -130,8 +130,8 @@ function runOptimizer() {
         r.comp.unusedDays > 30
           ? ` · <span style="color:#b76e00;">⚠️ ${r.comp.unusedDays} ungenutzte KBG-Tage</span>`
           : "";
-      html += `<div onclick="applyOptimizerScenario(${i})" class="scenario-card" style="cursor:pointer; margin-bottom:8px;padding:8px;border-radius:6px;border: 2px solid ${i === 0 ? '#81c784' : 'transparent'};background:${i === 0 ? "#e8f5e9" : "#f8f9fa"}; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s;">
-                <b style="color:${i === 0 ? '#2e7d32' : '#333'}">${i === 0 ? "★ Beste" : i + 1 + "."} Aufteilung</b><br>
+      html += `<div onclick="applyOptimizerScenario(${i})" class="scenario-card" style="cursor:pointer; margin-bottom:8px;padding:8px;border-radius:6px;border: 2px solid ${i === 0 ? "#81c784" : "transparent"};background:${i === 0 ? "#e8f5e9" : "#f8f9fa"}; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.2s;">
+                <b style="color:${i === 0 ? "#2e7d32" : "#333"}">${i === 0 ? "★ Beste" : i + 1 + "."} Aufteilung</b><br>
                 <span style="font-size:13px; display:block; margin:4px 0;">${describeScenario(r)}</span>
                 <span style="font-size:12px; color:#555;">
                   Haushalt: <b>${formatEur.format(r.householdMoney)}</b> ·
@@ -152,7 +152,7 @@ window.applyOptimizerScenario = function (index) {
   if (!window.lastTopScenarios || !window.lastTopScenarios[index]) return;
 
   const scenario = window.lastTopScenarios[index];
-  
+
   // Visuelles Feedback
   const out = document.getElementById("optimizerResult");
   const cards = out.querySelectorAll(".scenario-card");
