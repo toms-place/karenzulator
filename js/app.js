@@ -717,30 +717,107 @@ function saveData() {
   );
 }
 
+function applyDataToUI(parsed) {
+  if (parsed.version !== STORAGE_VERSION) {
+    showVersionAlert();
+    return false;
+  }
+  SAVED_INPUT_IDS.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el || parsed.data[id] === undefined) return;
+    if (el.type === "checkbox") {
+      el.checked = parsed.data[id];
+    } else {
+      el.value = parsed.data[id];
+    }
+  });
+  return true;
+}
+
 function loadData() {
+  // Check URI for share parameter first
+  const params = new URLSearchParams(window.location.search);
+  const shareStr = params.get("share");
+  if (shareStr) {
+    try {
+      const parsed = JSON.parse(decodeURIComponent(atob(shareStr)));
+      // Remove share param from URL without reloading
+      const newUrl =
+        window.location.protocol +
+        "//" +
+        window.location.host +
+        window.location.pathname;
+      window.history.replaceState({ path: newUrl }, "", newUrl);
+
+      if (applyDataToUI(parsed)) {
+        // Save to local storage for future visits
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        return true;
+      }
+    } catch (e) {
+      console.error("Share link parse error", e);
+    }
+  }
+
+  // Fallback to local storage
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return false;
   try {
     const parsed = JSON.parse(raw);
-    console.log("Loaded data from localStorage:", parsed);
-    if (parsed.version !== STORAGE_VERSION) {
-      showVersionAlert();
-      return false; // App updated, do not load old inputs
-    }
-    SAVED_INPUT_IDS.forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el || parsed.data[id] === undefined) return;
-      if (el.type === "checkbox") {
-        el.checked = parsed.data[id];
-      } else {
-        el.value = parsed.data[id];
-      }
-    });
-    return true;
+    return applyDataToUI(parsed);
   } catch (e) {
     console.error("Local storage parse error", e);
     return false;
   }
+}
+
+function shareConfiguration() {
+  const data = {};
+  SAVED_INPUT_IDS.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.type === "checkbox") {
+      data[id] = el.checked;
+    } else {
+      data[id] = el.value;
+    }
+  });
+  const payload = JSON.stringify({ version: STORAGE_VERSION, data: data });
+  const encoded = btoa(encodeURIComponent(payload));
+  const shareUrl =
+    window.location.protocol +
+    "//" +
+    window.location.host +
+    window.location.pathname +
+    "?share=" +
+    encoded;
+
+  navigator.clipboard
+    .writeText(shareUrl)
+    .then(() => {
+      const res = document.getElementById("shareResult");
+      if (res) {
+        res.style.display = "block";
+        setTimeout(() => {
+          res.style.display = "none";
+        }, 3000);
+      }
+    })
+    .catch((err) => {
+      console.warn("Fehler beim Kopieren des Links: ", err);
+      // Fallback if clipboard API is not available (e.g. prompt is blocked in some environments)
+      // We just show the link in an alert or change the button text slightly if prompt fails.
+      try {
+        prompt("Kopiere diesen Link:", shareUrl);
+      } catch (e) {
+        const res = document.getElementById("shareResult");
+        if (res) {
+          res.innerHTML = "Link: " + shareUrl;
+          res.style.display = "block";
+          res.style.wordBreak = "break-all";
+        }
+      }
+    });
 }
 
 function showVersionAlert() {
@@ -823,6 +900,9 @@ function bindUI() {
   };
   variantSel.addEventListener("change", togglePauschal);
   togglePauschal();
+
+  const shareBtn = document.getElementById("shareBtn");
+  if (shareBtn) shareBtn.addEventListener("click", shareConfiguration);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
