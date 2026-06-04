@@ -663,10 +663,104 @@ function renderChart(monthsData) {
       },
     },
   });
+
+  saveData();
 }
 
 // ----------------------------------------------------------
-// 7) UI-Bindings
+// 7) Lokaler Speicher & Versionierung
+// ----------------------------------------------------------
+const STORAGE_VERSION = 1;
+const STORAGE_KEY = "karenzulator_data";
+
+const SAVED_INPUT_IDS = [
+  "kbgVariant",
+  "pauschalDays",
+  "birthDate",
+  "birthType",
+  "switchDate",
+  "useOverlap",
+  "overlapDays",
+  "overlapFinancing",
+  "useSwitch2",
+  "switchDate2",
+  "incomeMutter",
+  "incomeVater",
+  "gfMutter",
+  "gfVater",
+  "extendedWho",
+  "extendedEndDate",
+  "useExtSwitch",
+  "extendedWho2",
+  "extendedEndDate2",
+  "ekpDone",
+  "optGoal",
+];
+
+function saveData() {
+  const data = {};
+  SAVED_INPUT_IDS.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.type === "checkbox") {
+      data[id] = el.checked;
+    } else {
+      data[id] = el.value;
+    }
+  });
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify({
+      version: STORAGE_VERSION,
+      data: data,
+    }),
+  );
+}
+
+function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return false;
+  try {
+    const parsed = JSON.parse(raw);
+    console.log("Loaded data from localStorage:", parsed);
+    if (parsed.version !== STORAGE_VERSION) {
+      showVersionAlert();
+      return false; // App updated, do not load old inputs
+    }
+    SAVED_INPUT_IDS.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el || parsed.data[id] === undefined) return;
+      if (el.type === "checkbox") {
+        el.checked = parsed.data[id];
+      } else {
+        el.value = parsed.data[id];
+      }
+    });
+    return true;
+  } catch (e) {
+    console.error("Local storage parse error", e);
+    return false;
+  }
+}
+
+function showVersionAlert() {
+  const alertDiv = document.createElement("div");
+  alertDiv.className = "alert-box";
+  alertDiv.style.display = "block";
+  alertDiv.style.borderColor = "#ffc107";
+  alertDiv.style.backgroundColor = "#fff3cd";
+  alertDiv.style.color = "#856404";
+  alertDiv.innerHTML = `<strong>App Update:</strong> Die App wurde aktualisiert. Deine alten Eingaben konnten nicht wiederhergestellt werden. Bitte gib deine Daten neu ein.`;
+
+  // Füge den Banner am Anfang der Controls ein
+  const controls = document.querySelector(".controls");
+  if (controls) {
+    controls.prepend(alertDiv);
+  }
+}
+
+// ----------------------------------------------------------
+// 8) UI-Bindings
 // ----------------------------------------------------------
 function bindUI() {
   document.getElementById("useOverlap").addEventListener("change", (e) => {
@@ -732,6 +826,23 @@ function bindUI() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  const loaded = loadData();
   bindUI();
+
+  if (loaded) {
+    // Manually trigger change events for logic that depends on visual toggles (like "display: block" for conditional inputs)
+    const elementsToTrigger = [
+      "kbgVariant",
+      "useOverlap",
+      "useSwitch2",
+      "extendedWho",
+      "useExtSwitch",
+    ];
+    elementsToTrigger.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.dispatchEvent(new Event("change"));
+    });
+  }
+
   calculateTimeline();
 });
