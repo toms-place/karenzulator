@@ -225,6 +225,8 @@ function simulate(p, blocks) {
     vaterKbgDays: 0,
     zuverdienstM: {}, // pro Jahr
     zuverdienstV: {},
+    kbgMonthsM: {}, // Track (Set) active KBG months per year for aliquoted limits
+    kbgMonthsV: {},
     monthsData: {},
     simEnd,
     horizonDays,
@@ -239,6 +241,8 @@ function simulate(p, blocks) {
     const year = loopDate.getFullYear();
     if (!result.zuverdienstM[year]) result.zuverdienstM[year] = 0;
     if (!result.zuverdienstV[year]) result.zuverdienstV[year] = 0;
+    if (!result.kbgMonthsM[year]) result.kbgMonthsM[year] = new Set();
+    if (!result.kbgMonthsV[year]) result.kbgMonthsV[year] = new Set();
 
     const block = blocks.find((b) => loopDate >= b.start && loopDate <= b.end);
 
@@ -269,6 +273,7 @@ function simulate(p, blocks) {
           result.totalStateMoney += kbgDailyM;
           result.zuverdienstM[year] += gfDailyM;
           result.mutterKbgDays++;
+          result.kbgMonthsM[year].add(k);
         } else {
           activeV = { label: block.label, class: block.class };
           vMoney = kbgDailyV + gfDailyV;
@@ -276,6 +281,7 @@ function simulate(p, blocks) {
           result.totalStateMoney += kbgDailyV;
           result.zuverdienstV[year] += gfDailyV;
           result.vaterKbgDays++;
+          result.kbgMonthsV[year].add(k);
         }
       } else if (block.type === "overlap") {
         const lbl = kbgLabel(p.variant);
@@ -289,6 +295,8 @@ function simulate(p, blocks) {
           result.zuverdienstV[year] += gfDailyV;
           result.mutterKbgDays++;
           result.vaterKbgDays++;
+          result.kbgMonthsM[year].add(k);
+          result.kbgMonthsV[year].add(k);
         } else if (block.finance === "mutter") {
           activeM = { label: lbl + " M", class: "bg-mutter-kbg" };
           activeV = { label: "Karenz Vater (unbezahlt)", class: "bg-ext-v" };
@@ -298,6 +306,7 @@ function simulate(p, blocks) {
           result.totalStateMoney += kbgDailyM;
           result.zuverdienstM[year] += gfDailyM;
           result.mutterKbgDays++;
+          result.kbgMonthsM[year].add(k);
         } else {
           activeM = { label: "Karenz Mutter (unbezahlt)", class: "bg-ext-m" };
           activeV = { label: lbl + " V", class: "bg-vater-kbg" };
@@ -306,6 +315,7 @@ function simulate(p, blocks) {
           result.totalStateMoney += kbgDailyV;
           result.zuverdienstV[year] += gfDailyV;
           result.vaterKbgDays++;
+          result.kbgMonthsV[year].add(k);
         }
       } else if (block.type === "ext") {
         if (block.who === "Mutter") {
@@ -388,19 +398,29 @@ function evaluateCompliance(p, blocks, sim) {
   const bonusEligible =
     validRatio && validDays && !blockRuleViolated && !switchRuleViolated;
 
-  // Zuverdienst-Grenze: variantenabhängig
-  // eaKBG:    € 8.600/Jahr (§ 24 Abs. 1 Z 3)
-  // Pauschal: € 18.000/Jahr (§ 8 Abs. 1)
-  const zuverdienstLimit =
+  // Zuverdienst-Grenze: variantenabhängig aliquot nach Monaten (§ 24 Abs. 1 Z 3)
+  // Der Grenzbetrag gilt für das volle Kalenderjahr und wird aliquotiert
+  // für Kalendermonate, in denen auch nur tageweise KBG bezogen wurde.
+  const baseLimit =
     p.variant === "pauschal"
       ? KBG_LAW.PAUSCHAL_ZUVERDIENST_LIMIT
       : KBG_LAW.ZUVERDIENST_LIMIT;
   let zuverdienstViolated = false;
-  Object.values(sim.zuverdienstM).forEach((v) => {
-    if (v > zuverdienstLimit) zuverdienstViolated = true;
+
+  Object.entries(sim.zuverdienstM).forEach(([year, yearlyIncome]) => {
+    const activeMonths = sim.kbgMonthsM[year]?.size || 0;
+    if (activeMonths > 0) {
+      const yearLimit = (baseLimit / 12) * activeMonths;
+      if (yearlyIncome > yearLimit) zuverdienstViolated = true;
+    }
   });
-  Object.values(sim.zuverdienstV).forEach((v) => {
-    if (v > zuverdienstLimit) zuverdienstViolated = true;
+
+  Object.entries(sim.zuverdienstV).forEach(([year, yearlyIncome]) => {
+    const activeMonths = sim.kbgMonthsV[year]?.size || 0;
+    if (activeMonths > 0) {
+      const yearLimit = (baseLimit / 12) * activeMonths;
+      if (yearlyIncome > yearLimit) zuverdienstViolated = true;
+    }
   });
 
   // Ungenutzte KBG-Tage (Österreich verfällt der Anspruch —
@@ -425,7 +445,7 @@ function evaluateCompliance(p, blocks, sim) {
     dateOrderViolated,
     bonusEligible,
     zuverdienstViolated,
-    zuverdienstLimit,
+    zuverdienstLimit: baseLimit,
     unusedDays,
   };
 }
